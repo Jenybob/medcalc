@@ -1,20 +1,31 @@
-# Настройки
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-updater = Updater(token='583171379:AAGMemuXxpQB3u_KorK7xZ_uYokQ54k33SQ') # Токен API к Telegram
-dispatcher = updater.dispatcher
-# Обработка команд
-def startCommand(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text='Привет, давай пообщаемся?')
-def textMessage(bot, update):
-    response = 'Получил Ваше сообщение: ' + update.message.text
-    bot.send_message(chat_id=update.message.chat_id, text=response)
-# Хендлеры
-start_command_handler = CommandHandler('start', startCommand)
-text_message_handler = MessageHandler(Filters.text, textMessage)
-# Добавляем хендлеры в диспетчер
-dispatcher.add_handler(start_command_handler)
-dispatcher.add_handler(text_message_handler)
-# Начинаем поиск обновлений
-updater.start_polling(clean=True)
-# Останавливаем бота, если были нажаты Ctrl + C
-updater.idle()
+import requests  
+import datetime
+
+class BotHandler:
+
+    def __init__(self, token):
+        self.token = token
+        self.api_url = "https://api.telegram.org/bot583171379:AAGMemuXxpQB3u_KorK7xZ_uYokQ54k33SQ/getUpdates/".format(token)
+
+    def get_updates(self, offset=None, timeout=30):
+        method = 'getUpdates'
+        params = {'timeout': timeout, 'offset': offset}
+        resp = requests.get(self.api_url + method, params)
+        result_json = resp.json()['result']
+        return result_json
+
+    def send_message(self, chat_id, text):
+        params = {'chat_id': chat_id, 'text': text}
+        method = 'sendMessage'
+        resp = requests.post(self.api_url + method, params)
+        return resp
+
+    def get_last_update(self):
+        get_result = self.get_updates()
+
+        if len(get_result) > 0:
+            last_update = get_result[-1]
+        else:
+            last_update = get_result[len(get_result)]
+
+        return last_update
