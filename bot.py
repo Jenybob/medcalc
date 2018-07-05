@@ -1,20 +1,24 @@
-# Настройки
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-updater = Updater(token='583171379:AAGMemuXxpQB3u_KorK7xZ_uYokQ54k33SQ') # Токен API к Telegram
-dispatcher = updater.dispatcher
-# Обработка команд
-def startCommand(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text='Привет, давай пообщаемся?')
-def textMessage(bot, update):
-    response = 'Получил Ваше сообщение: ' + update.message.text
-    bot.send_message(chat_id=update.message.chat_id, text=response)
-# Хендлеры
-start_command_handler = CommandHandler('start', startCommand)
-text_message_handler = MessageHandler(Filters.text, textMessage)
-# Добавляем хендлеры в диспетчер
-dispatcher.add_handler(start_command_handler)
-dispatcher.add_handler(text_message_handler)
-# Начинаем поиск обновлений
-updater.start_polling(clean=True)
-# Останавливаем бота, если были нажаты Ctrl + C
-updater.idle()
+import telepot
+from telepot.loop import MessageLoop
+
+TOKEN = '583171379:AAGMemuXxpQB3u_KorK7xZ_uYokQ54k33SQ'
+bot = telepot.Bot(TOKEN)
+
+def handle(msg):
+    """ Process request like '3+2' """
+    content_type, chat_type, chat_id = telepot.glance(msg)
+    text = msg["text"]
+    try:
+        answer = eval(text)
+    except:
+        answer = "Can't calculate :("
+    bot.sendMessage(chat_id, "answer: {}".format(answer))
+
+
+MessageLoop(bot, handle).run_as_thread()
+
+# Keep the program running.
+while True:
+    n = input('To stop enter "stop":')
+    if n.strip() == 'stop':
+        break
